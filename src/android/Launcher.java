@@ -204,6 +204,9 @@ public class Launcher extends CordovaPlugin {
 			}
 			launchAppWithData(packageName, options.getString("uri"), dataType, extras);
 			return true;
+		} else if (options.has("packageName") && (options.has("SENT")) {
+			launchAppSent(options.getString("packageName"), extras);
+			return true;
 		} else if (options.has("packageName")) {
 			launchApp(options.getString("packageName"), extras);
 			return true;
@@ -389,6 +392,41 @@ public class Launcher extends CordovaPlugin {
 					try {
 						launchIntent.putExtras(extras);
 						mycordova.startActivityForResult(plugin, launchIntent, LAUNCH_REQUEST);
+						((Launcher) plugin).callbackLaunched();
+					} catch (ActivityNotFoundException e) {
+						Log.e(TAG, "Error: Activity for package" + packageName + " was not found.");
+						e.printStackTrace();
+						callbackContext.error("Activity not found for package name.");
+					}
+				} else {
+					callbackContext.error("Activity not found for package name.");
+				}
+			}
+		});
+	}
+			   
+	private void launchAppSent(final String packageName, final Bundle extras) {
+		final CordovaInterface mycordova = cordova;
+		final CordovaPlugin plugin = this;
+		Log.i(TAG, "Trying to launch app: " + packageName);
+		cordova.getThreadPool().execute(new LauncherRunnable(this.callback) {
+			public void run() {
+				//final PackageManager pm = plugin.webView.getContext().getPackageManager();
+				final Intent sendIntent = new Intent();
+				sendIntent.setPackage(packageName);
+				sendIntent.setAction(Intent.ACTION_SEND);
+				//sendIntent.putExtra(Intent.EXTRA_TEXT, "This is my text to send.");
+				sendIntent.setType("text/plain");
+
+				//Intent shareIntent = Intent.createChooser(sendIntent, null);
+				//startActivity(shareIntent);
+				//final Intent launchIntent = pm.getLaunchIntentForPackage(packageName);
+				boolean appNotFound = sendIntent == null;
+
+				if (!appNotFound) {
+					try {
+						sendIntent.putExtras(extras);
+						mycordova.startActivityForResult(plugin, sendIntent, LAUNCH_REQUEST);
 						((Launcher) plugin).callbackLaunched();
 					} catch (ActivityNotFoundException e) {
 						Log.e(TAG, "Error: Activity for package" + packageName + " was not found.");
