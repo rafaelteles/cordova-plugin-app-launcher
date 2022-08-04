@@ -204,7 +204,7 @@ public class Launcher extends CordovaPlugin {
 			}
 			launchAppWithData(packageName, options.getString("uri"), dataType, extras);
 			return true;
-		} else if (options.has("packageName") && (options.has("SENT")) {
+		} else if (options.has("packageName") && options.has("SENT")) {
 			launchAppSent(options.getString("packageName"), extras);
 			return true;
 		} else if (options.has("packageName")) {
